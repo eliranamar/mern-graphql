@@ -1,0 +1,15 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type User {
+    id: ID!
+    email: String!
+    name: String
+    avatarUrl: String
+}
+
+type Query {
+    users: [User!]!
+}
