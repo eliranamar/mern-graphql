@@ -13,3 +13,8 @@ type User {
 type Query {
     users: [User!]!
 }
+
+type Mutation {
+    # add user to the DB
+    addUser(email: String!, name: String, avatarUrl: String): User
+}

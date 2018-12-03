@@ -4,39 +4,21 @@ const graphqlHTTP = require('express-graphql');
 const { importSchema } = require('graphql-import');
 const { makeExecutableSchema } = require('graphql-tools');
 
-const db = {
-  users: [
-    { id: '1', email: 'alex@gmail.com', name: 'Alex', avatarUrl: 'https://gravatar.com/' },
-    { id: '2', email: 'max@gmail.com', name: 'Max', avatarUrl: 'https://gravatar.com/' },
-  ]
-};
 
 const typeDefs = importSchema('./graphql/schema.graphql');
 const { resolvers } = require('./graphql/rootResolver');
 
+// create schema
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-
-// const schema = buildSchema(`
-//   type Query {
-//     users: [User!]!
-//   }
-//
-//   type User {
-//     id: ID!
-//     email: String!
-//     name: String
-//     avatarUrl: String
-//   }
-// `);
-//
-
-
+// create the express server
 const app = express();
+const port = process.env.PORT || 3000;
 
 app.use('/graphql', graphqlHTTP({
   schema,
-  graphiql: true,
+  graphiql: true, // show the GraphiQL interface
 }));
 
-app.listen(3000, () => {console.log('Running on port 3000');});
+// start the server
+app.listen(port, () => {console.log('Running on port 3000');});
