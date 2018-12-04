@@ -15,11 +15,9 @@ const {resolvers} = require('../graphql/rootResolver')
 // create schema
 const schema = makeExecutableSchema({typeDefs, resolvers})
 
+import { PORT, NODE_ENV } from '../config'
+
 // create the express server
-const {
-  PORT = 4000,
-  NODE_ENV = 'development',
-} = process.env
 
 const isProduction = NODE_ENV === 'production'
 
