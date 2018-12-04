@@ -3,18 +3,29 @@ schema {
     mutation: Mutation
 }
 
+type Query {
+    users: [User!]!
+    user(id:ID!): User
+
+    messages: [Message!]!
+}
+
+type Mutation {
+    # add a user to the DB
+    addUser(email: String!, name: String, avatarUrl: String): User
+}
+
 type User {
     id: ID!
     email: String!
     name: String
     avatarUrl: String
+    messages: [Message!]!
 }
 
-type Query {
-    users: [User!]!
-}
-
-type Mutation {
-    # add user to the DB
-    addUser(email: String!, name: String, avatarUrl: String): User
+type Message {
+    id: ID!
+    userId: ID!
+    body: String!
+    createdAt: String
 }
