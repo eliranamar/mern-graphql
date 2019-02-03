@@ -4,6 +4,7 @@ import express from 'express'
 import { importSchema } from 'graphql-import'
 import { makeExecutableSchema } from 'graphql-tools'
 
+// create the express server
 const app = express()
 
 // remove from headers
@@ -16,8 +17,6 @@ const {resolvers} = require('../graphql/rootResolver')
 const schema = makeExecutableSchema({typeDefs, resolvers})
 
 import { PORT, NODE_ENV } from '../config'
-
-// create the express server
 
 const isProduction = NODE_ENV === 'production'
 
