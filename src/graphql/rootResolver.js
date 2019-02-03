@@ -1,9 +1,10 @@
 // const crypto = require('crypto')
 // const chalk = require('chalk')
 import { UserInputError } from 'apollo-server-express'
+import Joi from 'joi'
 
-import { db } from '../../db/index'
 import { User } from '../models'
+import { UserSignUpSchema } from '../schemas'
 
 const resolvers = {
   Query: {
@@ -12,12 +13,12 @@ const resolvers = {
       return User.find({})
     },
 
-    user: async (rootObject, {id: userId}) => {
+    user: async (rootObject, {id}) => {
       // TODO: add auth, projection, sanitization
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        throw new UserInputError(`${userId} is not a valid user ID.`)
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new UserInputError(`${id} is not a valid user ID.`)
       }
-      return User.findById(userId)
+      return User.findById(id)
     },
 
   },
@@ -27,7 +28,7 @@ const resolvers = {
     signUp: async (rootObject, args, context, info) => {
 
       // validation
-      const password = args.password;
+      await Joi.validate(args, UserSignUpSchema, {abortEarly: false}) // don't stop validating at first failure
 
       return User.create(args)
     }
