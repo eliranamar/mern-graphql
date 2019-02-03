@@ -1,17 +1,23 @@
-const crypto = require('crypto');
-const chalk = require('chalk');
+// const crypto = require('crypto')
+// const chalk = require('chalk')
+import { UserInputError } from 'apollo-server-express'
 
-const { db } = require('../../db/index');
-const log = console.log;
+import { db } from '../../db/index'
+import { User } from '../models'
 
 const resolvers = {
   Query: {
     users: async () => {
-      return db.users;
+      // TODO: add auth, projection, pagination
+      return User.find({})
     },
 
-    user: async (rootObject, { id: idToFind }) => {
-      return db.users.find(({ id }) => {return id === idToFind;});
+    user: async (rootObject, {id: userId}) => {
+      // TODO: add auth, projection, sanitization
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new UserInputError(`${userId} is not a valid user ID.`)
+      }
+      return User.findById(userId)
     },
 
   },
@@ -20,14 +26,16 @@ const resolvers = {
 
     signUp: async (rootObject, args, context, info) => {
 
+      // validation
+      const password = args.password;
+
+      return User.create(args)
     }
   },
 
-  User: {
-
-  },
-};
+  User: {},
+}
 
 module.exports = {
   resolvers,
-};
+}

@@ -1,9 +1,8 @@
 import path from 'path'
-import { ApolloServer, gql } from 'apollo-server-express'
+import { ApolloServer } from 'apollo-server-express'
 import express from 'express'
 import mongoose from 'mongoose'
 import { importSchema } from 'graphql-import'
-import { makeExecutableSchema } from 'graphql-tools'
 
 import { PORT, NODE_ENV, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME } from '../config'
 
@@ -24,9 +23,6 @@ import { PORT, NODE_ENV, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME } f
 
     const typeDefs = importSchema(path.resolve(__dirname, '../graphql/schema.graphql'))
     const {resolvers} = require('../graphql/rootResolver')
-
-// create schema
-    const schema = makeExecutableSchema({typeDefs, resolvers})
 
     const isProduction = NODE_ENV === 'production'
 
