@@ -1,10 +1,26 @@
 import path from 'path'
 import { ApolloServer } from 'apollo-server-express'
 import express from 'express'
+import session from 'express-session'
+import connectRedis from 'connect-redis'
 import mongoose from 'mongoose'
 import { importSchema } from 'graphql-import'
 
-import { PORT, NODE_ENV, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME } from '../config'
+import {
+  PORT,
+  NODE_ENV,
+  SESSIONS_NAME,
+  SESSIONS_LIFETIME,
+  SESSIONS_SECRET,
+  DB_HOST,
+  DB_NAME,
+  DB_PASSWORD,
+  DB_PORT,
+  DB_USERNAME,
+  REDIS_HOST,
+  REDIS_PASSWORD,
+  REDIS_PORT,
+} from '../config'
 
 (async () => {
   try {
@@ -18,18 +34,40 @@ import { PORT, NODE_ENV, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME } f
     // create the express server
     const app = express()
 
+    const isProduction = NODE_ENV === 'production'
+
     // remove from headers
     app.disable('x-powered-by')
 
+    const RedisStore = connectRedis(session)
+
+    const store = new RedisStore({
+      host: REDIS_HOST,
+      port: REDIS_PORT,
+      pass: REDIS_PASSWORD,
+    })
+
+    app.use(session({
+      store,
+      name:              SESSIONS_NAME,
+      secret:            SESSIONS_SECRET,
+      resave:            false,
+      saveUninitialized: false,
+      cookie:            {
+        maxAge:   SESSIONS_LIFETIME,
+        sameSite: true,
+        secure:   isProduction,
+      }
+    }))
+
     const typeDefs = importSchema(path.resolve(__dirname, '../graphql/schema.graphql'))
     const {resolvers} = require('../graphql/rootResolver')
-
-    const isProduction = NODE_ENV === 'production'
 
     const server = new ApolloServer({
       typeDefs,
       resolvers,
       playground: !isProduction,
+      context:    ({req, res}) => {return {req, res}}
     })
 
     server.applyMiddleware({app})

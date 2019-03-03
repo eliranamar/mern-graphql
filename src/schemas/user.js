@@ -1,10 +1,15 @@
 import Joi from 'joi'
 
-export default Joi.object().keys({
-  email:    Joi.string().email().required().label('Email'),
-  username: Joi.string().alphanum().min(3).max(30).required().label('Username'),
-  name:     Joi.string().alphanum().max(255).required().label('Name'),
-  password: Joi.string().regex(/^(?=\S*[a-z])(?=\S*[A-Z])(?=\S*\d)(?=\S*[^\w\s])\S{8,32}$/).label('Password').options({
+const email = Joi.string().email().required().label('Email')
+
+const username = Joi.string().alphanum().min(3).max(30).required().label('Username')
+
+const name = Joi.string().alphanum().max(255).required().label('Name')
+
+const password = Joi.string()
+  .regex(/^(?=\S*[a-z])(?=\S*[A-Z])(?=\S*\d)(?=\S*[^\w\s])\S{8,32}$/)
+  .label('Password')
+  .options({
     language: {
       string: {
         regex: { // provide custom error message
@@ -12,5 +17,16 @@ export default Joi.object().keys({
         }
       }
     }
-  }),
+  });
+
+export const signUpSchema = Joi.object().keys({
+  email,
+  username,
+  name,
+  password,
+})
+
+export const signInSchema = Joi.object().keys({
+  email,
+  password,
 })

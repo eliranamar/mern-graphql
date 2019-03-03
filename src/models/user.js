@@ -6,13 +6,23 @@ const userSchema = new mongoose.Schema({
   email:    {
     type:     String,
     validate: {
-      validator: async (email) => {
-        return await User.where({email}).countDocuments() === 0
+      validator: (email) => {
+        // ensure unique email in db
+        return User.ensureUnique({email})
       },
-      message: ({value}) => { return `Email ${value} has already been taken` }, // TODO add security
+      message:   ({value}) => { return `Email ${value} has already been taken` }, // TODO add security
     }
   },
-  username: String,
+  username: {
+    type:     String,
+    validate: {
+      validator: (username) => {
+        // ensure unique username in db
+        return User.ensureUnique({username})
+      },
+      message:   ({value}) => { return `Username ${value} has already been taken` }, // TODO add security
+    }
+  },
   name:     String,
   password: String,
 }, {
@@ -22,12 +32,21 @@ const userSchema = new mongoose.Schema({
 // create a pre save hook
 userSchema.pre('save', async function () { // takes a regular function callback (to access 'this' key)
 
-  // if the password has been modified
+  // if the password has been modified. 'this' is the User instance
   if (this.isModified('password')) {
     // assign the salted and hashed password, with salt length of 10
     this.password = await hash(this.password, 10) // this, is the User model called === args.password
   }
 })
+
+/**
+ * ensures unique fields in DB
+ * @param options {Object}
+ * @returns {Promise<boolean>}
+ */
+userSchema.statics.ensureUnique = async function (options) {
+  return await this.where(options).countDocuments() === 0
+}
 
 // create a closure so we can access the User model in the validator functions
 const User = mongoose.model('User', userSchema)

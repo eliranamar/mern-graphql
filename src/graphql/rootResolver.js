@@ -4,12 +4,23 @@ import { UserInputError } from 'apollo-server-express'
 import Joi from 'joi'
 
 import { User } from '../models'
-import { UserSignUpSchema } from '../schemas'
+import { signUpSchema, signInSchema } from '../schemas'
+import { checkSignedIn, checkSignedOut } from '../auth'
 
 const resolvers = {
   Query: {
-    users: async () => {
+    me:    async (rootObject, args, {req}, info) => {
       // TODO: add auth, projection, pagination
+
+      checkSignedIn(req)
+
+      return User.findById(req.session.userId)
+    },
+    users: async (rootObject, args, {req}, info) => {
+      // TODO: add auth, projection, pagination
+
+      checkSignedIn(req)
+
       return User.find({})
     },
 
@@ -25,13 +36,30 @@ const resolvers = {
 
   Mutation: {
 
-    signUp: async (rootObject, args, context, info) => {
+    signUp:  async (rootObject, args, {req}, info) => {
 
+      checkSignedOut(req)
       // validation
-      await Joi.validate(args, UserSignUpSchema, {abortEarly: false}) // don't stop validating at first failure
+      await Joi.validate(args, signUpSchema, {abortEarly: false}) // don't stop validating at first failure
 
       return User.create(args)
-    }
+    },
+    signIn:  async (rootObject, args, {req}, info) => {
+      const {userId} = req.session
+      if (userId) {
+        return User.findById(userId)
+      }
+      await Joi.validate(args, signInSchema, {abortEarly: false}) // don't stop validating at first failure
+
+      return User.create(args)
+    },
+    signOut: async (rootObject, args, {req}, info) => {
+      const {userId} = req.session
+      if (userId) {
+        return User.findById(userId)
+      }
+      return User.create(args)
+    },
   },
 
   User: {},
