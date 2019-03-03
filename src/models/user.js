@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { hash } from 'bcryptjs'
+import { hash, compare } from 'bcryptjs'
 
 // we can pass a config obj as argument to set the type with options
 const userSchema = new mongoose.Schema({
@@ -46,6 +46,10 @@ userSchema.pre('save', async function () { // takes a regular function callback 
  */
 userSchema.statics.ensureUnique = async function (options) {
   return await this.where(options).countDocuments() === 0
+}
+
+userSchema.methods.matchesPassword = function (password) {
+  return compare(password, this.password)
 }
 
 // create a closure so we can access the User model in the validator functions

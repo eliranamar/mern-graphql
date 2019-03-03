@@ -5,7 +5,7 @@ import Joi from 'joi'
 
 import { User } from '../models'
 import { signUpSchema, signInSchema } from '../schemas'
-import { checkSignedIn, checkSignedOut } from '../auth'
+import { attemptSIgnIn, checkSignedIn, checkSignedOut, signOutUser } from '../auth'
 
 const resolvers = {
   Query: {
@@ -51,14 +51,15 @@ const resolvers = {
       }
       await Joi.validate(args, signInSchema, {abortEarly: false}) // don't stop validating at first failure
 
-      return User.create(args)
+      const user = await attemptSIgnIn(args.email, args.password)
+
+      req.session.userId = user.id
+
+      return user
     },
-    signOut: async (rootObject, args, {req}, info) => {
-      const {userId} = req.session
-      if (userId) {
-        return User.findById(userId)
-      }
-      return User.create(args)
+    signOut: async (rootObject, args, {req, res}, info) => {
+      checkSignedIn(req)
+      signOutUser(req, res)
     },
   },
 

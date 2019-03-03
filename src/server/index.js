@@ -9,9 +9,9 @@ import { importSchema } from 'graphql-import'
 import {
   PORT,
   NODE_ENV,
-  SESSIONS_NAME,
-  SESSIONS_LIFETIME,
-  SESSIONS_SECRET,
+  SESSION_NAME,
+  SESSION_LIFETIME,
+  SESSION_SECRET,
   DB_HOST,
   DB_NAME,
   DB_PASSWORD,
@@ -49,12 +49,12 @@ import {
 
     app.use(session({
       store,
-      name:              SESSIONS_NAME,
-      secret:            SESSIONS_SECRET,
+      name:              SESSION_NAME,
+      secret:            SESSION_SECRET,
       resave:            false,
       saveUninitialized: false,
       cookie:            {
-        maxAge:   SESSIONS_LIFETIME,
+        maxAge:   SESSION_LIFETIME,
         sameSite: true,
         secure:   isProduction,
       }
