@@ -30,7 +30,7 @@ import {
     const mongoOptions = {useNewUrlParser: true}
     // connect to DB asynchronously
     await mongoose.connect(mongoUri, mongoOptions)
-
+    console.log(`Connected to DB ${DB_NAME} on host ${DB_HOST}`)
     // create the express server
     const app = express()
 
@@ -51,10 +51,11 @@ import {
       store,
       name:              SESSION_NAME,
       secret:            SESSION_SECRET,
-      resave:            false,
+      resave:            true, // reset the session time left
+      rolling:           true, // sync the cookie to our session
       saveUninitialized: false,
       cookie:            {
-        maxAge:   SESSION_LIFETIME,
+        maxAge:   parseInt(SESSION_LIFETIME, 10), // convert string if passed from command line
         sameSite: true,
         secure:   isProduction,
       }
@@ -66,7 +67,6 @@ import {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      cors:       false, // only allow queries to be sent from same domain and port
       playground: isProduction ? false : {
         settings: {
           'request.credentials': 'include', // allow cookies
@@ -75,7 +75,10 @@ import {
       context:    ({req, res}) => {return {req, res}}
     })
 
-    server.applyMiddleware({app})
+    server.applyMiddleware({
+      app,
+      cors: false, // only allow queries to be sent from same domain and port
+    })
 
     app.listen({port: PORT}, () => {
       console.log(`🚀  Server ready at http://localhost:${PORT}${server.graphqlPath}`)
