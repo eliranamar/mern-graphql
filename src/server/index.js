@@ -66,7 +66,12 @@ import {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      playground: !isProduction,
+      cors:       false, // only allow queries to be sent from same domain and port
+      playground: isProduction ? false : {
+        settings: {
+          'request.credentials': 'include', // allow cookies
+        },
+      },
       context:    ({req, res}) => {return {req, res}}
     })
 

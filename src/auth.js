@@ -5,13 +5,18 @@ import { SESSION_NAME } from './config'
 
 export const attemptSIgnIn = async (email, password) => {
 
+  // generic error message
+  const msg = 'Incorrect email or password.'
+
+  // Get the user from DB
   const user = await User.findOne({email})
   if (!user) {
-    throw new AuthenticationError('Email doesnt exists')
+    throw new AuthenticationError(msg)
   }
 
+  // Validate password
   if (!await user.matchesPassword(password)) {
-    throw new AuthenticationError('Incorrect password')
+    throw new AuthenticationError(msg)
   }
 
   return user

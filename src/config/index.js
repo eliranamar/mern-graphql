@@ -3,7 +3,7 @@ export const {
   NODE_ENV = 'development',
   SESSION_NAME = 'sid',
   SESSION_SECRET = 'ssh!secret!',
-  SESSION_LIFETIME = 1000 * 60 * 120, // 2 hours
+  SESSION_LIFETIME = 1000 * 60 * 60 * 6, // 6 hours
   REDIS_HOST = 'localhost',
   REDIS_PORT = 6379,
   REDIS_PASSWORD = 'redisSecret',
